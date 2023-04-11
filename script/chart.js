@@ -27,6 +27,17 @@ const drag = simulation => {
   }
   const dragended = (event, d) => {
     if (!event.active) simulation.alphaTarget(0);
+// save fixed locations to localStorage
+    localStorage.setItem(
+      "fixedNodes",
+      JSON.stringify(
+        simulation
+          .nodes()
+          .map((d, i) => ({ i, fx: d.fx, fy: d.fy }))
+          .filter(d => d.fx)
+      )
+    );
+    console.log(localStorage);
     d.fx = null;
     d.fy = null;
   }
@@ -49,6 +60,25 @@ export const mobilePatentSuits = (data, {
 } = {}) => {
   const links = data.links.map(d => Object.create(d));
   const nodes = data.nodes.map(d => Object.create(d));
+  console.log("Nodes Before");
+  console.log(nodes);
+
+  // apply fixed positions found in localStorage
+  const fx = JSON.parse(localStorage.getItem("fixedNodes"));
+  console.log("fixed nodes");
+  console.log(fx);
+  if (fx && fx.length > 0)
+    for (const f of fx) {
+      const i = f.i,
+        fx = f.fx,
+        fy = f.fy;
+      if (i && nodes[i] && fx && fy) {
+        nodes[i].fx = fx;
+        nodes[i].fy = fy;
+      }
+    }
+   console.log("Nodes After");
+   console.log(nodes);
 
   const types = Array.from(new Set(data.links.map(d => d.type)));
   const color = d3.scaleOrdinal(types, d3.schemeCategory10);
