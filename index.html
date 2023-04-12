@@ -3,14 +3,93 @@
 <head>
   <meta charset='utf-8'>
   <script src='./script/d3.min.js'></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
   <link rel='stylesheet' type='text/css' href='./style/style.css'>
 </head>
 
 <body>
   <h1>Mobile Patent Suits</h1>
-  <li><a href='https://github.com/takanori-fujiwara/d3-gallery-javascript/tree/main/networks/mobile-patent-suits'>Source code</a></li>
-  <li><a href='https://observablehq.com/@d3/mobile-patent-suits'>Original Observable version</a></li>
+  <input class="classhere" type="file" name="logo" id="logo" />
+  <div class="imagearea"></div>
+
+  <a id="downloadAnchorElem">download</a>
+  <script>
+
+$(document).ready(function(){
+  //You might want to do if check to see if localstorage set for theImage here
+  var img = new Image();                
+  img.src = localStorage.theImage;
+
+  $('.imagearea').html(img);
+
+  $("body").on("change",".classhere",function(){
+      //Equivalent of getElementById
+      var fileInput = $(this)[0];//returns a HTML DOM object by putting the [0] since it's really an associative array.
+      var file = fileInput.files[0]; //there is only '1' file since they are not multiple type.
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+           // Create a new image.
+           var img = new Image();
+
+           img.src = reader.result;
+           localStorage.theImage = reader.result; //stores the image to localStorage
+           $(".imagearea").html(img);
+       }
+
+       reader.readAsDataURL(file);//attempts to read the file in question.
+    });
+});
+
+const download0 = () => (
+      encodeURIComponent(
+        JSON.stringify(
+          Object.keys(localStorage).reduce(
+            (obj, k) => ({ ...obj, [k]: JSON.parse(localStorage.getItem(k)) }),
+            {}
+          ),
+          null,
+          2
+        )
+      )
+  )
+
+  const download1 = () => (
+      encodeURIComponent(
+        JSON.stringify(
+          Object.entries(localStorage).reduce(
+            (obj, [k, v]) =>  ({...obj, [k]: JSON.parse(v)}),
+            {}
+          ),
+          null,
+          2
+        )
+      )
+  )
+
+
+  const download2 = () => (
+    encodeURIComponent(
+      JSON.stringify(
+        (function(){
+          const o = {};
+          for (const k of Object.keys(localStorage)){
+            o[k] = JSON.parse(localStorage[k])
+          }
+          return o
+        }())  
+        , null, 2)
+    )
+  ) 
+
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage.getItem("fixedNodes")));
+    var dlAnchorElem = document.getElementById('downloadAnchorElem');
+    dlAnchorElem.setAttribute("href",     dataStr     );
+    dlAnchorElem.setAttribute("download", "scene.json");
+  </script>
+
   <script src='./script/main.js' type='module'></script>
+
 </body>
 
 </html>
